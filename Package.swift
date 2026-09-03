@@ -34,43 +34,43 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "ffmpegkit",
-            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.1/ffmpegkit.xcframework.zip",
-            checksum: "3f5d4c61c5c4b11d3b786a0d2f743fcb9b6a594a0fdb6de97eee5167e2a1d0e7"
+            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.2/ffmpegkit.xcframework.zip",
+            checksum: "7a3c0e781557311f5559d21be8032814c330da75630ae6b5a50dd69e435387e5"
         ),
         .binaryTarget(
             name: "libavcodec",
-            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.1/libavcodec.xcframework.zip",
-            checksum: "d3d4a3131a3f2654abd651507e6476da66b80af922304eb33b3fa3e11464f78d"
+            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.2/libavcodec.xcframework.zip",
+            checksum: "b7e5d7f8672db218383a5e063f0b5240c1cbca74de52b12752dcdb83d8041bf3"
         ),
         .binaryTarget(
             name: "libavdevice",
-            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.1/libavdevice.xcframework.zip",
-            checksum: "553702f4d0abc692c13816fb455b50250d49944d84dfbe96e2e269189b94032f"
+            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.2/libavdevice.xcframework.zip",
+            checksum: "f5f68edfc5c30fc4a967eed3184114c919890998354402cd59f07c19faf69bef"
         ),
         .binaryTarget(
             name: "libavfilter",
-            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.1/libavfilter.xcframework.zip",
-            checksum: "e913cd9a15b96f89c59592a475b3da8aed7c5ee79ab10f92056ff6cd5478300c"
+            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.2/libavfilter.xcframework.zip",
+            checksum: "e4280f389fc1ea8f3bab46f4e705d6c2bf7bce6136a7b17db0a36f5f35af27fd"
         ),
         .binaryTarget(
             name: "libavformat",
-            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.1/libavformat.xcframework.zip",
-            checksum: "bc20fcb10a1070bd69eb86cc4367cf885cb44d219de0162e33920b12806edc21"
+            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.2/libavformat.xcframework.zip",
+            checksum: "17dbc0b884b91f5e40e8b956c82ff2a62d592d9fa2636a4ddda85fe3f65d760d"
         ),
         .binaryTarget(
             name: "libavutil",
-            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.1/libavutil.xcframework.zip",
-            checksum: "c12a8659cb89742c65a5f9353f24696e166b0f5fc608d111178d4fe9c0bf08f7"
+            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.2/libavutil.xcframework.zip",
+            checksum: "18935edb064551aa3e2ce580e18476cacac1f0ad17d2d9db25c20173bd429eb0"
         ),
         .binaryTarget(
             name: "libswresample",
-            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.1/libswresample.xcframework.zip",
-            checksum: "4598512401a486a99e5c28f0d3b4efa305b20263e1ad7d23177e8bd2d57c7cc1"
+            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.2/libswresample.xcframework.zip",
+            checksum: "a88af682aaa07059b3e3cecb235bf0dea602de6edf18f6cbe5cc9b408733c243"
         ),
         .binaryTarget(
             name: "libswscale",
-            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.1/libswscale.xcframework.zip",
-            checksum: "8341630a3a9a538baf62fcb5c1c71b5ad4b0dfe0e3f4e2d6cfa3df259a3840fb"
+            url: "https://github.com/panofm/ffmpeg-kit-next/releases/download/v9.0.0-pano.2/libswscale.xcframework.zip",
+            checksum: "faf52286e4e0f3f155a4896e6dd7d3f39124d2be44988a95da38a81e98ddc3ba"
         ),
     ]
 )
