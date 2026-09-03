@@ -20,6 +20,9 @@ on:
 jobs:
   build:
     runs-on: macos-26
+    # The job publishes a release, which the default read-only token cannot do.
+    permissions:
+      contents: write
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
