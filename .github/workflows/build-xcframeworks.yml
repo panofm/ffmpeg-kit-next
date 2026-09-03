@@ -42,11 +42,11 @@ jobs:
       # nix-ios.sh runs ios.sh inside the shell. flake.nix honours DEVELOPER_DIR
       # and xcode-select, so the Xcode pinned above still supplies the SDK.
       - name: Build
-        run: ./nix-ios.sh --arch=arm64,arm64-simulator --enable-lib-ios-audiotoolbox -x --spm --speed
+        run: ./nix-ios.sh -p xcode26 -- --arch=arm64,arm64-simulator --enable-lib-ios-audiotoolbox -x --spm --speed
 
       - name: The build log, when it fails
         if: failure()
-        run: tail -200 build.log
+        run: tail -200 build.log || echo "(no build.log — the wrapper rejected its arguments before starting)"
 
       # The whole point of the job. A binary stamped above the runner's SDK is
       # the bug we are fixing, so refuse to publish one.
