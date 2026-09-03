@@ -48,20 +48,24 @@ jobs:
         if: failure()
         run: tail -200 build.log || echo "(no build.log — the wrapper rejected its arguments before starting)"
 
-      # The whole point of the job. A binary stamped above the runner's SDK is
-      # the bug we are fixing, so refuse to publish one.
+      # The whole point of the job. App Store review refuses a binary whose
+      # LC_BUILD_VERSION sdk is newer than the shipping SDK — ITMS-90512, "27.0
+      # ... greater than the maximum allowed value of 26.5". Note 26.5 is the
+      # CEILING, not a violation: a released Xcode stamping 26.5 is fine, and
+      # the toolchain may stamp a point release above its own iphoneos SDK.
+      # What is never fine is a whole major above the runner's released Xcode —
+      # that only happens when someone builds on a beta, which is the bug here.
       - name: Refuse an SDK the App Store will reject
         run: |
-          MAX="$(xcrun --sdk iphoneos --show-sdk-version)"
-          echo "runner iphoneos SDK: $MAX"
+          MAJOR="$(xcrun --sdk iphoneos --show-sdk-version | cut -d. -f1)"
+          echo "runner Xcode major: $MAJOR"
           bad=0
           while IFS= read -r bin; do
             sdk="$(vtool -show-build-version "$bin" 2>/dev/null | awk '/^ *sdk /{print $2; exit}')"
             [ -z "$sdk" ] && continue
             echo "  $sdk  $bin"
-            # Compare as versions: anything above the runner's SDK is a beta stamp.
-            if [ "$(printf '%s\n%s\n' "$sdk" "$MAX" | sort -V | tail -1)" != "$MAX" ]; then
-              echo "::error::$bin is stamped sdk $sdk, above the runner's $MAX"
+            if [ "$(printf '%s' "$sdk" | cut -d. -f1)" -gt "$MAJOR" ]; then
+              echo "::error::$bin is stamped sdk $sdk, a major above the runner's $MAJOR — built with a beta Xcode"
               bad=1
             fi
           done < <(find prebuilt -type f -perm +111 -path '*.framework/*' ! -name '*.plist')
