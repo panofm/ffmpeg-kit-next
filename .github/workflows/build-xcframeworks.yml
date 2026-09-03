@@ -40,6 +40,10 @@ jobs:
       - name: Build
         run: SED="$(brew --prefix gnu-sed)/libexec/gnubin/sed" ./ios.sh --arch=arm64,arm64-simulator --enable-lib-ios-audiotoolbox -x --spm --speed
 
+      - name: The build log, when it fails
+        if: failure()
+        run: tail -200 build.log
+
       # The whole point of the job. A binary stamped above the runner's SDK is
       # the bug we are fixing, so refuse to publish one.
       - name: Refuse an SDK the App Store will reject
