@@ -33,12 +33,16 @@ jobs:
       # The exact invocation v9.0.0-pano.1 recorded in its release notes. No
       # external libraries: the voice path needs `loudnorm` and `ebur128`, both
       # built into libavfilter.
-      # The build scripts need GNU sed; the runner ships BSD sed. ios.sh takes SED=.
-      - name: Install GNU sed
-        run: brew install gnu-sed
+      # The repo builds through its own Nix shell — that is where GNU sed and the
+      # rest of the toolchain come from. Plain ./ios.sh on a Homebrew PATH gets
+      # far enough to compile ffmpeg and then produces no ffmpeg-kit headers.
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
 
+      # nix-ios.sh runs ios.sh inside the shell. flake.nix honours DEVELOPER_DIR
+      # and xcode-select, so the Xcode pinned above still supplies the SDK.
       - name: Build
-        run: SED="$(brew --prefix gnu-sed)/libexec/gnubin/sed" ./ios.sh --arch=arm64,arm64-simulator --enable-lib-ios-audiotoolbox -x --spm --speed
+        run: ./nix-ios.sh --arch=arm64,arm64-simulator --enable-lib-ios-audiotoolbox -x --spm --speed
 
       - name: The build log, when it fails
         if: failure()
