@@ -1,0 +1,93 @@
+name: Build iOS xcframeworks
+
+# The xcframeworks this fork publishes were built on a Mac running an Xcode 27
+# BETA, so every binary carried `LC_BUILD_VERSION sdk 27.0`. TestFlight accepts
+# that; App Store review does not (ITMS-90512, max 26.5), and it rejected a
+# release. The SDK stamp comes from whichever Xcode builds them, so the build
+# belongs on a runner pinned to a RELEASED Xcode — not on a laptop whose
+# default toolchain follows Apple's betas.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish (e.g. v9.0.0-pano.2). Created from the checked-out ref.'
+        required: true
+      xcode:
+        description: 'Xcode to build with. Must be a RELEASED version — a beta stamps an SDK the App Store refuses.'
+        required: false
+        default: '26.4.1'
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -switch "/Applications/Xcode_${{ inputs.xcode }}.app"
+          xcodebuild -version
+          echo "iphoneos SDK: $(xcrun --sdk iphoneos --show-sdk-version)"
+
+      # The exact invocation v9.0.0-pano.1 recorded in its release notes. No
+      # external libraries: the voice path needs `loudnorm` and `ebur128`, both
+      # built into libavfilter.
+      - name: Build
+        run: ./ios.sh --arch=arm64,arm64-simulator --enable-lib-ios-audiotoolbox -x --spm --speed
+
+      # The whole point of the job. A binary stamped above the runner's SDK is
+      # the bug we are fixing, so refuse to publish one.
+      - name: Refuse an SDK the App Store will reject
+        run: |
+          MAX="$(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "runner iphoneos SDK: $MAX"
+          bad=0
+          while IFS= read -r bin; do
+            sdk="$(vtool -show-build-version "$bin" 2>/dev/null | awk '/^ *sdk /{print $2; exit}')"
+            [ -z "$sdk" ] && continue
+            echo "  $sdk  $bin"
+            # Compare as versions: anything above the runner's SDK is a beta stamp.
+            if [ "$(printf '%s\n%s\n' "$sdk" "$MAX" | sort -V | tail -1)" != "$MAX" ]; then
+              echo "::error::$bin is stamped sdk $sdk, above the runner's $MAX"
+              bad=1
+            fi
+          done < <(find prebuilt -type f -perm +111 -path '*.framework/*' ! -name '*.plist')
+          [ "$bad" = 0 ] || exit 1
+
+      - name: Zip the xcframeworks
+        run: |
+          mkdir -p dist
+          find prebuilt -name '*.xcframework' -maxdepth 4 -print0 | while IFS= read -r -d '' fw; do
+            name="$(basename "$fw")"
+            (cd "$(dirname "$fw")" && zip -qry "$GITHUB_WORKSPACE/dist/$name.zip" "$name")
+          done
+          ls -la dist
+
+      - name: Checksums for Package.swift
+        run: |
+          cd dist
+          for z in *.zip; do
+            echo "$z  $(swift package compute-checksum "$z")" | tee -a checksums.txt
+          done
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SDK="$(xcrun --sdk iphoneos --show-sdk-version)"
+          {
+            echo "Prebuilt iOS xcframeworks for panofm, from upstream v9.0.0."
+            echo
+            echo "Built with:"
+            echo
+            echo "    ./ios.sh --arch=arm64,arm64-simulator --enable-lib-ios-audiotoolbox -x --spm --speed"
+            echo
+            echo "Built on \`macos-26\` with Xcode ${{ inputs.xcode }} (iphoneos SDK $SDK) so every slice carries an SDK the App Store accepts. v9.0.0-pano.1 was built with an Xcode 27 beta and was rejected by ITMS-90512."
+            echo
+            echo "No external libraries beyond Apple's AudioToolbox: the voice path needs \`loudnorm\` and \`ebur128\`, which are built-in libavfilter filters."
+            echo
+            echo "LGPL-3.0, as upstream."
+          } > dist/NOTES.md
+          gh release create "${{ inputs.tag }}" dist/*.zip --title "${{ inputs.tag }}" --notes-file dist/NOTES.md
+          cat dist/checksums.txt >> "$GITHUB_STEP_SUMMARY"
